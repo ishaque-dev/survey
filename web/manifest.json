@@ -1,11 +1,11 @@
 {
-    "name": "survey",
-    "short_name": "survey",
+    "name": "GHSSK Reunion 2007 Survey",
+    "short_name": "GHSSK 2007",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#0F172A",
+    "theme_color": "#5EEAD4",
+    "description": "Vote for our class reunion ceremony names.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

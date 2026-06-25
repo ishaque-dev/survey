@@ -514,15 +514,22 @@ class _SurveyPageState extends State<SurveyPage> {
                           ),
                         ),
                         Column(
-                          mainAxisSize: MainAxisSize.min,
+
+                          mainAxisSize: MainAxisSize.max,
                           children: [
                             Text(
                               '${totalVoters.toInt()}',
-                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.red),
                             ),
+
                             const Text(
-                              '/ 189',
-                              style: TextStyle(fontSize: 8, color: Colors.white54, fontWeight: FontWeight.bold),
+                              'Out of',
+                              style: TextStyle(fontSize: 6, color: Colors.yellowAccent, fontWeight: FontWeight.bold),
+                            ),
+
+                            const Text(
+                              '189',
+                              style: TextStyle(fontSize: 12, color: Colors.green, fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
