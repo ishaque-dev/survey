@@ -22,29 +22,33 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Reunion Survey',
+      title: 'GHSSK Reunion 2007',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
+        brightness: Brightness.dark,
+        scaffoldBackgroundColor: const Color(0xFF0F172A),
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.tealAccent,
           brightness: Brightness.dark,
-          surface: const Color(0xFF121212),
+          primary: Colors.tealAccent,
+          surface: const Color(0xFF1E293B),
         ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
           fillColor: Colors.white.withOpacity(0.05),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide.none,
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide.none,
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Colors.tealAccent, width: 1),
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(color: Colors.tealAccent, width: 1.5),
           ),
           labelStyle: const TextStyle(color: Colors.tealAccent),
           prefixIconColor: Colors.tealAccent,
@@ -52,10 +56,11 @@ class MyApp extends StatelessWidget {
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.tealAccent,
-            foregroundColor: Colors.black87,
-            minimumSize: const Size.fromHeight(56),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            foregroundColor: const Color(0xFF0F172A),
+            minimumSize: const Size.fromHeight(60),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            elevation: 8,
           ),
         ),
       ),
@@ -135,10 +140,11 @@ class _SurveyPageState extends State<SurveyPage> {
   void _showSnackBar(String message, {bool isError = false}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message, style: const TextStyle(color: Colors.white)),
+        content: Text(message,textAlign: TextAlign.center,),
         backgroundColor: isError ? Colors.redAccent : Colors.teal.shade700,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        margin: const EdgeInsets.all(20),
       ),
     );
   }
@@ -187,7 +193,7 @@ class _SurveyPageState extends State<SurveyPage> {
             _otpSent = true;
             _isLoading = false;
           });
-          _showSnackBar('Code sent to $phoneNumber');
+          _showSnackBar('OTP code sent to $phoneNumber');
         },
         codeAutoRetrievalTimeout: (String verificationId) {
           _verificationId = verificationId;
@@ -213,7 +219,7 @@ class _SurveyPageState extends State<SurveyPage> {
       _saveData(phoneNumber);
     } catch (e) {
       setState(() => _isLoading = false);
-      _showSnackBar('Invalid OTP.', isError: true);
+      _showSnackBar('Invalid OTP code.', isError: true);
     }
   }
 
@@ -269,124 +275,201 @@ class _SurveyPageState extends State<SurveyPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final size = MediaQuery.of(context).size;
+    final isWide = size.width > 900;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Reunion Survey', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.tealAccent)),
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
       body: Stack(
         children: [
-          _showResults ? _buildResultsView(theme) : _buildSurveyView(theme),
+          SafeArea(
+            child: Column(
+              children: [
+                _buildHeader(theme),
+                Expanded(
+                  child: isWide ? _buildWideLayout(theme) : _buildMobileLayout(theme),
+                ),
+              ],
+            ),
+          ),
           if (_isLoading)
-            Container(color: Colors.black54, child: const Center(child: CircularProgressIndicator(color: Colors.tealAccent))),
+            Container(
+              color: Colors.black54,
+              child: const Center(child: CircularProgressIndicator(color: Colors.tealAccent)),
+            ),
         ],
       ),
     );
   }
 
-  Widget _buildSurveyView(ThemeData theme) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+  Widget _buildHeader(ThemeData theme) {
+    final size = MediaQuery.of(context).size;
+    final isWide = size.width > 900;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          const Row(
             children: [
-              Text(
-                'Pick your 4 favorites (${_selectedOptions.length}/4)',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white70),
-              ),
-              TextButton(
-                onPressed: () => setState(() => _showResults = true),
-                child: const Text('Live Status', style: TextStyle(color: Colors.tealAccent, fontSize: 12)),
+              Icon(Icons.school_outlined, color: Colors.tealAccent, size: 32),
+              SizedBox(width: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'GHSSK 2007',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.tealAccent),
+                  ),
+                  Text(
+                    'NAMING SURVEY',
+                    style: TextStyle(fontSize: 12, letterSpacing: 2, color: Colors.white54),
+                  ),
+                ],
               ),
             ],
           ),
-          const SizedBox(height: 10),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 4,
-              childAspectRatio: 2.8,
-              mainAxisSpacing: 8,
-              crossAxisSpacing: 8,
+          if (!isWide)
+            TextButton(
+              onPressed: () => setState(() => _showResults = !_showResults),
+              child: Text(
+                _showResults ? 'VOTE NOW' : 'LIVE STATUS',
+                style: const TextStyle(color: Colors.tealAccent, fontWeight: FontWeight.bold),
+              ),
             ),
-            itemCount: _options.length,
-            itemBuilder: (context, index) {
-              final option = _options[index];
-              final isSelected = _selectedOptions.contains(option);
-              return GestureDetector(
-                onTap: () => _onOptionSelected(!isSelected, option),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  decoration: BoxDecoration(
-                    color: isSelected ? Colors.tealAccent.withOpacity(0.9) : Colors.white.withOpacity(0.05),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: isSelected ? Colors.tealAccent : Colors.white12,
-                      width: 1,
-                    ),
-                  ),
-                  alignment: Alignment.center,
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Text(
-                    option,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 8.5,
-                      color: isSelected ? Colors.black : Colors.white70,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-          const SizedBox(height: 32),
-          TextField(
-            controller: _nameController,
-            style: const TextStyle(color: Colors.white),
-            decoration: const InputDecoration(labelText: 'Full Name', prefixIcon: Icon(Icons.person_outline)),
-          ),
-          const SizedBox(height: 16),
-          if (!_otpSent) ...[
-            TextField(
-              controller: _phoneController,
-              style: const TextStyle(color: Colors.white),
-              decoration: const InputDecoration(labelText: 'Phone', prefixText: '+91 ',),
-              keyboardType: TextInputType.phone,
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _isLoading ? null : _sendOtp,
-              child: const Text('SUBMIT & SEND OTP'),
-            ),
-          ] else ...[
-            TextField(
-              controller: _otpController,
-              style: const TextStyle(color: Colors.white),
-              decoration: const InputDecoration(labelText: 'Verification Code', prefixIcon: Icon(Icons.lock_outline)),
-              keyboardType: TextInputType.number,
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _isLoading ? null : _verifyOtp,
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.tealAccent),
-              child: const Text('VERIFY & VOTE'),
-            ),
-          ],
-          const SizedBox(height: 40),
         ],
       ),
     );
   }
 
-  Widget _buildResultsView(ThemeData theme) {
+  Widget _buildWideLayout(ThemeData theme) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          flex: 1,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: _buildSurveyContent(theme),
+          ),
+        ),
+        VerticalDivider(width: 1, color: Colors.white.withOpacity(0.1)),
+        Expanded(
+          flex: 1,
+          child: _buildResultsView(theme, showTotal: true),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMobileLayout(ThemeData theme) {
+    return _showResults 
+      ? _buildResultsView(theme, showTotal: true) 
+      : SingleChildScrollView(padding: const EdgeInsets.all(20), child: _buildSurveyContent(theme));
+  }
+
+  Widget _buildSurveyContent(ThemeData theme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.03),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.white.withOpacity(0.05)),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Pick your 4 favorites', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text('${_selectedOptions.length} / 4', style: const TextStyle(color: Colors.tealAccent, fontWeight: FontWeight.bold)),
+            ],
+          ),
+        ),
+        const SizedBox(height: 24),
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 4,
+            childAspectRatio: 3,
+            mainAxisSpacing: 8,
+            crossAxisSpacing: 8,
+          ),
+          itemCount: _options.length,
+          itemBuilder: (context, index) {
+            final option = _options[index];
+            final isSelected = _selectedOptions.contains(option);
+            return GestureDetector(
+              onTap: () => _onOptionSelected(!isSelected, option),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                decoration: BoxDecoration(
+                  color: isSelected ? Colors.tealAccent : Colors.white.withOpacity(0.05),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                alignment: Alignment.center,
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Text(
+                  option,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 9,
+                    color: isSelected ? Colors.black : Colors.white70,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+        const SizedBox(height: 32),
+        TextField(
+          controller: _nameController,
+          decoration: const InputDecoration(labelText: 'Full Name', prefixIcon: Icon(Icons.person_outline)),
+        ),
+        const SizedBox(height: 16),
+        if (!_otpSent) ...[
+          TextField(
+            controller: _phoneController,
+            decoration: const InputDecoration(labelText: 'Phone Number', prefixText: '+91 ',),
+            keyboardType: TextInputType.phone,
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: _isLoading ? null : _sendOtp,
+            child: const Text('SUBMIT & SEND OTP'),
+          ),
+        ] else ...[
+          TextField(
+            controller: _otpController,
+            decoration: const InputDecoration(labelText: 'Verification Code', prefixIcon: Icon(Icons.lock_outline)),
+            keyboardType: TextInputType.number,
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: _isLoading ? null : _verifyOtp,
+            child: const Text('VERIFY & VOTE'),
+          ),
+        ],
+        const SizedBox(height: 40),
+        const Center(
+          child: Column(
+            children: [
+              Text(
+                'Created with ❤️ by Ishaque',
+                style: TextStyle(color: Colors.white30, fontSize: 12, letterSpacing: 0.5),
+              ),
+              SizedBox(height: 20),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildResultsView(ThemeData theme, {bool showTotal = false}) {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance.collection('options').snapshots(),
       builder: (context, snapshot) {
@@ -397,6 +480,8 @@ class _SurveyPageState extends State<SurveyPage> {
         for (var doc in docs) {
           totalVotesCast += ((doc.data() as Map<String, dynamic>)['count'] ?? 0) as int;
         }
+        final totalVoters = totalVotesCast / 4;
+
         final sortedDocs = docs.toList()
           ..sort((a, b) {
             final aData = a.data() as Map<String, dynamic>;
@@ -409,33 +494,53 @@ class _SurveyPageState extends State<SurveyPage> {
         return Column(
           children: [
             Padding(
-              padding: const EdgeInsets.all(20.0),
+              padding: const EdgeInsets.all(24.0),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Icon(Icons.leaderboard, color: Colors.tealAccent),
-                  const SizedBox(width: 12),
-                  const Text(
-                    'Live Rankings',
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
-                  ),
-                  const Spacer(),
-                  IconButton(
-                    onPressed: () => setState(() => _showResults = false),
-                    icon: const Icon(Icons.close, color: Colors.white54),
-                  )
+                  const Text('Live Status', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                  if (showTotal)
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        SizedBox(
+                          height: 60,
+                          width: 60,
+                          child: CircularProgressIndicator(
+                            value: totalVoters / 189,
+                            strokeWidth: 6,
+                            backgroundColor: Colors.white10,
+                            color: Colors.tealAccent,
+                          ),
+                        ),
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              '${totalVoters.toInt()}',
+                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                            ),
+                            const Text(
+                              '/ 189',
+                              style: TextStyle(fontSize: 8, color: Colors.white54, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                 ],
               ),
             ),
             Expanded(
               child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 24),
                 itemCount: sortedDocs.length,
                 itemBuilder: (context, index) {
                   final doc = sortedDocs[index];
                   final name = doc.id;
                   final count = (doc.data() as Map<String, dynamic>)['count'] ?? 0;
                   final double progress = maxCount > 0 ? count / maxCount : 0;
-                  final double percentage = totalVotesCast > 0 ? (count / (totalVotesCast / 4)) * 100 : 0;
+                  final double percentage = totalVoters > 0 ? (count / totalVoters) * 100 : 0;
 
                   return Container(
                     margin: const EdgeInsets.only(bottom: 16),
@@ -451,56 +556,39 @@ class _SurveyPageState extends State<SurveyPage> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Expanded(
-                              child: Text(
-                                name,
-                                style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 15),
-                              ),
-                            ),
-                            Text(
-                              '$count',
-                              style: const TextStyle(color: Colors.tealAccent, fontWeight: FontWeight.bold, fontSize: 18),
-                            ),
+                            Expanded(child: Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14))),
+                            Text('$count', style: const TextStyle(color: Colors.tealAccent, fontWeight: FontWeight.bold, fontSize: 16)),
                           ],
                         ),
                         const SizedBox(height: 12),
                         Stack(
                           children: [
-                            Container(
-                              height: 8,
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                color: Colors.white10,
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                            ),
+                            Container(height: 6, decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(3))),
                             AnimatedContainer(
                               duration: const Duration(seconds: 1),
-                              height: 8,
-                              width: MediaQuery.of(context).size.width * 0.75 * progress,
+                              height: 6,
+                              width: (MediaQuery.of(context).size.width * 0.4) * progress,
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(colors: [Colors.teal.shade700, Colors.tealAccent]),
-                                borderRadius: BorderRadius.circular(4),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.tealAccent.withOpacity(0.3),
-                                    blurRadius: 4,
-                                    spreadRadius: 1,
-                                  )
-                                ],
+                                borderRadius: BorderRadius.circular(3),
                               ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 8),
-                        Text(
-                          '${percentage.toStringAsFixed(1)}% of voters chose this',
-                          style: TextStyle(color: Colors.white38, fontSize: 11),
-                        ),
+                        Text('${percentage.toStringAsFixed(1)}% of voters', style: const TextStyle(color: Colors.white38, fontSize: 10)),
                       ],
                     ),
                   );
                 },
+              ),
+            ),
+            const Divider(color: Colors.white10, height: 1),
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 16),
+              child: Text(
+                'Created with ❤️ by Ishaque',
+                style: TextStyle(color: Colors.white30, fontSize: 10, letterSpacing: 0.5),
               ),
             ),
           ],
