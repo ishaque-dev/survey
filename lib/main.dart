@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -450,8 +451,10 @@ class _SurveyPageState extends State<SurveyPage> {
         if (!_otpSent) ...[
           TextField(
             controller: _phoneController,
-            decoration: const InputDecoration(labelText: 'Phone Number', prefixText: '+91 ',),
+            decoration: const InputDecoration(labelText: 'Phone Number', prefixText: '+91 ', counterText: ""),
             keyboardType: TextInputType.phone,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            maxLength: 10,
           ),
           const SizedBox(height: 24),
           ElevatedButton(
