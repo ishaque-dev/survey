@@ -78,124 +78,40 @@ class SurveyPage extends StatefulWidget {
 
 class _SurveyPageState extends State<SurveyPage> {
   final List<String> _options = [
-    // Malayalam
-    "സൗഹൃദ സംഗമം",
-    "സൗഹൃദ കൂട്ടായ്മ",
-    "സ്മൃതി മധുരം",
-    "സ്മൃതി തീരം",
-    "സ്മരണിക 2005-2007",
-    "സ്നേഹക്കൂട്",
-    "സഖിത്വം",
-    "വീണ്ടും ഒരിക്കൽ",
-    "വർഷങ്ങൾക്ക് ശേഷം ഒരു ഒന്നന്നര വരവ്",
-    "വർഷങ്ങൾക്കുശേഷം, ഒരിക്കൽ കൂടി",
-    "മെമ്മറീസ് 2007",
-    "മയിൽ‌പീലി",
-    "മനസ്സിലുണ്ടോ ആ പ്ലസ്ടു കാലം",
-    "മധുരിക്കും പതിനേഴിൽ",
-    "മധുര സ്മരണകൾ",
-    "പ്രതിധ്വനി",
-    "പുന സംഗമം",
-    "പിന്നിട്ട വഴികളിലെ മറക്കാത്ത ഓർമ്മകൾ",
-    "പഴയ ഓർമ്മകളുടെ ഒച്ചകൾ",
-    "നോട്ട്ബുക്കും മഷിപേനയും",
-    "തിരികേ നിൻ അരികിൽ",
-    "തിരികെ തിരുമുറ്റത്ത്",
-    "തിരികെ ക്ലാസ്സിലേക്ക്",
-    "തിരികെ -2005 -2007",
-    "തിരികെ",
-    "ചങ്ങാതിക്കൂട്ടം",
-    "ക്ലാസ്സ്‌ റൂം കഥകൾ",
-    "ഓലപീപ്പി",
-    "ഓർമ്മച്ചെപ്പ് 2005-2007",
-    "ഓർമ്മച്ചെപ്പ്",
-    "ഓർമ്മക്കൂട്",
-    "ഓർമ്മകളുടെ ഇടവഴി",
-    "ഓർമ്മകളുടെ ഇടനാഴി",
-    "ഓർമ്മകളിലൂടെ",
-    "ഓർമ്മകളിൽ 2005-2007",
-    "ഓർമകളിലേക്ക് ഒരു മടക്കം",
-    "ഓർമ തണലിൽ ഒരിക്കൽ കൂടി",
-    "ഒഴുകുകയായ് വീണ്ടും",
-    "ഒരുമയുടെ ഓർമ്മകൾ",
-    "ഒരു വട്ടം കൂടി",
-    "ഏകത്ര",
-    "ഇന്നലെകളിലെക്ക്",
-    "ഇന്നലകളെ ഓർമ്മകൾ 2005-2007",
-    "ഇന്നലകളിലൂടെ",
-    "ഇന്നലകളിൽ",
-    "ഇത്തിരി നേരം, ഒത്തിരി കാര്യം",
-    "ഇങ്ങള് ബാ നമ്മുക്കു വൈബ് ആക്കാം",
-    "ആരവം.05-07",
-    "അങ്ങനെയൊരു അവധിക്കാലം",
-    "വീണ്ടുമീ പുഷ്പവാടിയിൽ",
-    "ഓർമക്കൂട്ടിൽ ഒരുവട്ടം കൂടി",
-    "Classroom ഡയറീസ്",
-    "ദേവദാരു പൂത്തകാലം",
-    "ഒരുമ",
-    "അറിവോരം",
-    "ഞങ്ങൾ",
-    "സ്നേഹപൂർവ്വം",
-    "ചേക്കേറും ചില്ല",
-
-    // English
-    "Vicennia",
-    "Two Decades Of Memories",
-    "Two Decades - 2007 Reunion",
-    "Together Again",
-    "Timeless Ties",
-    "Time Machine",
-    "Then And Now",
-    "The Sophomores Of GHSSK",
-    "The Sequel",
-    "The Second Generation",
-    "The Return",
-    "The Nostalgia Meet",
-    "The Lost Bell",
-    "The Grand Return",
-    "The First Junior",
-    "The Bell Rings Again",
-    "The 2007 Gathering",
-    "That Time.. That Form",
-    "Soulbound",
-    "Second Wave",
-    "Rewind 2005.2007",
-    "Reunite 20",
-    "Re-Connect '07",
-    "Plus 2❤️",
-    "Philautia",
-    "Petals Come Together",
-    "Old Is Gold",
-    "Millennials' Homecoming:Edition 2005-2007",
-    "Millennial Gen",
-    "Millenials: Back To The Batch (2005-2007)",
-    "Millenial 2026",
-    "Ice Cream Memories",
-    "Golden Reunion",
-    "Flashback 20 -",
-    "Rewind Plustwo",
-    "Evergreen Memories",
-    "Era '07 To Now....",
-    "Echoes Of 2007",
-    "Crazy After 20 Years",
-    "Classmates 2.0",
-    "Chill Mode On",
-    "Beyound Years",
-    "Bench Mark",
-    "Batchmate'S Day",
-    "Batch 07: Unwind",
-    "Back To The Hallways- 20 Year Re- Union",
-    "Back To The Bench",
-    "Back To Schooldays",
-    "Back To GHSSK",
-    "Back To Bench.",
-    "Back To Bench Buddies.....Chapter One",
-    "A Lot Of Things For A While",
-    "90'Kids",
-    "20 Years Later – Epanénosi",
-    "20 Years Later",
-    "Two decades one bond",
-    "Rewind20",
+    'സൗഹൃദ സംഗമം', 'സൗഹൃദ കൂട്ടായ്മ', 'സ്മൃതി മധുരം', 'സ്മൃതി തീരം',
+    'സ്മരണിക 2005-2007', 'സ്നേഹക്കൂട്', 'സഖിത്വം', 'വീണ്ടും ഒരിക്കൽ',
+    'വർഷങ്ങൾക്ക് ശേഷം ഒരു ഒന്നന്നര വരവ്', 'വർഷങ്ങൾക്കുശേഷം, ഒരിക്കൽ കൂടി',
+    'മെമ്മറീസ് 2007', 'മയിൽ‌പീലി', 'മനസ്സിലുണ്ടോ ആ പ്ലസ്ടു കാലം',
+    'മധുരിക്കും പതിനേഴിൽ', 'മധുര സ്മരണകൾ', 'പ്രതിധ്വനി', 'പുന സംഗമം',
+    'പിന്നിട്ട വഴികളിലെ മറക്കാത്ത ഓർമ്മകൾ', 'പഴയ ഓർമ്മകളുടെ ഒച്ചകൾ',
+    'നോട്ട്ബുക്കും മഷിപേനയും', 'തിരികേ നിൻ അരികിൽ', 'തിриകെ തിരുമുറ്റത്ത്',
+    'തിриകെ ക്ലാസ്സിലേക്ക്', 'തിриകെ -2005 -2007', 'തിരികെ', 'ചങ്ങാതിക്കൂട്ടം',
+    'ക്ലാസ്സ്‌ റൂം കഥകൾ', 'ഓലപീപ്പി', 'ഓർമ്മച്ചെപ്പ് 2005-2007', 'ഓർമ്മച്ചെപ്പ്',
+    'ഓർമ്മക്കൂട്', 'ഓർമ്മകളുടെ ഇടവഴി', 'ഓർമ്മകളുടെ ഇടനാഴി', 'ഓർമ്മകളിലൂടെ',
+    'ഓർമ്മകളിൽ 2005-2007', 'ഓർമകളിലേക്ക് ഒരു മടക്കം', 'ഓർമ തണലിൽ ഒരിക്കൽ കൂടി',
+    'ഒഴുകുകയായ് വീണ്ടും', 'एकത്ര', 'ഇന്നലെകളിലെക്ക്', 'ഇന്നലകളെ ഓർമ്മകൾ 2005-2007',
+    'ഇന്നലകളിലൂടെ', 'ഇന്നലകളിൽ', 'ഇത്തിരി നേരം, ഒത്തിരി കാര്യം',
+    'ഇങ്ങള് ബാ നമ്മുക്കു വൈബ് ആക്കാം', 'ആരവം.05-07', 'അങ്ങനെയൊരു അവധിക്കാലം',
+    'Vicennia', 'വീണ്ടുമീ പുഷ്പവാടിയിൽ', 'Two Decades Of Memories',
+    'Two Decades - 2007 Reunion', 'Together Again', 'Timeless Ties',
+    'Time Machine', 'Then And Now', 'The Sophomores Of GHSSK', 'The Sequel',
+    'The Second Generation', 'The Return', 'The Nostalgia Meet', 'The Lost Bell',
+    'The Grand Return', 'The First Junior', 'The Bell Rings Again',
+    'The 2007 Gathering', 'That Time.. That Form', 'Soulbound', 'Second Wave',
+    'Rewind 2005.2007', 'Reunite 20', 'Re-Connect \'07', 'Plus 2❤️', 'Philautia',
+    'Petals Come Together', 'ഓർമക്കൂട്ടിൽ ഒരുവട്ടം കൂടി', 'Old Is Gold',
+    'Millennials\' Homecoming:Edition 2005-2007', 'Millennial Gen',
+    'Millenials: Back To The Batch (2005-2007)', 'Millenial 2026',
+    'Ice Cream Memories', 'Golden Reunion', 'Flashback 20 -', 'Rewind Plustwo',
+    'Evergreen Memories', 'Era \'07 To Now....', 'Echoes Of 2007',
+    'Crazy After 20 Years', 'Classroom ഡയറീസ്', 'Classmates 2.0', 'Chill Mode On',
+    'Beyound Years', 'Bench Mark', 'Batchmate\'S Day', 'Batch 07: Unwind',
+    'Back To The Hallways- 20 Year Re- Union', 'Back To The Bench',
+    'Back To Schooldays', 'Back To GHSSK', 'Back To Bench.',
+    'Back To Bench Buddies.....Chapter One', 'A Lot Of Things For A While',
+    '90\'Kids', '20 Years Later – Epanénosi', '20 Years Later', 'ദേവദാരു പൂത്തകാലം',
+    'ഒരുമ', 'അറിവോരം', 'ഞങ്ങൾ', 'Two decades one bond', 'Rewind20',
+    'സ്നേഹപൂർവ്വം', 'ചേക്കേറും ചില്ല', 'ഒരുമയുടെ ഓർമ്മകൾ', 'ഒരു വട്ടം കൂടി'
   ];
 
   final Set<String> _selectedOptions = {};
@@ -225,7 +141,7 @@ class _SurveyPageState extends State<SurveyPage> {
   void _showSnackBar(String message, {bool isError = false}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message,textAlign: TextAlign.center,),
+        content: Text(message, textAlign: TextAlign.center),
         backgroundColor: isError ? Colors.redAccent : Colors.teal.shade700,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -556,134 +472,149 @@ class _SurveyPageState extends State<SurveyPage> {
 
   Widget _buildResultsView(ThemeData theme, {bool showTotal = false}) {
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('options').snapshots(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(color: Colors.tealAccent));
+      stream: FirebaseFirestore.instance.collection('survey_responses').snapshots(),
+      builder: (context, votersSnapshot) {
+        final totalVoters = votersSnapshot.hasData ? votersSnapshot.data!.docs.length : 0;
 
-        final docs = snapshot.data!.docs;
-        int totalVotesCast = 0;
-        for (var doc in docs) {
-          totalVotesCast += ((doc.data() as Map<String, dynamic>)['count'] ?? 0) as int;
-        }
-        final totalVoters = totalVotesCast / 4;
+        return StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance.collection('options').snapshots(),
+          builder: (context, optionsSnapshot) {
+            if (!optionsSnapshot.hasData) return const Center(child: CircularProgressIndicator(color: Colors.tealAccent));
 
-        final sortedDocs = docs.toList()
-          ..sort((a, b) {
-            final aData = a.data() as Map<String, dynamic>;
-            final bData = b.data() as Map<String, dynamic>;
-            return (bData['count'] ?? 0).compareTo(aData['count'] ?? 0);
-          });
+            final docs = optionsSnapshot.data!.docs;
+            final sortedDocs = docs.toList()
+              ..sort((a, b) {
+                final aData = a.data() as Map<String, dynamic>;
+                final bData = b.data() as Map<String, dynamic>;
+                return (bData['count'] ?? 0).compareTo(aData['count'] ?? 0);
+              });
 
-        final int maxCount = sortedDocs.isNotEmpty ? (sortedDocs.first.data() as Map<String, dynamic>)['count'] ?? 1 : 1;
+            final int maxCount = sortedDocs.isNotEmpty ? (sortedDocs.first.data() as Map<String, dynamic>)['count'] ?? 1 : 1;
 
-        return Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Live Status', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-                  if (showTotal)
+            return Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Live Status', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                      if (showTotal)
                     Stack(
                       alignment: Alignment.center,
                       children: [
                         SizedBox(
-                          height: 60,
-                          width: 60,
+                          height: 70,
+                          width: 70,
                           child: CircularProgressIndicator(
                             value: totalVoters / 189,
-                            strokeWidth: 6,
-                            backgroundColor: Colors.white10,
+                            strokeWidth: 8,
+                            backgroundColor: Colors.white.withOpacity(0.1),
                             color: Colors.tealAccent,
+                            strokeCap: StrokeCap.round,
                           ),
                         ),
                         Column(
-
-                          mainAxisSize: MainAxisSize.max,
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
                               '${totalVoters.toInt()}',
-                              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.red),
+                              style: const TextStyle(
+                                fontSize: 18, 
+                                fontWeight: FontWeight.bold, 
+                                color: Colors.tealAccent,
+                                height: 1.1,
+                              ),
                             ),
-
-                            const Text(
-                              'Out of',
-                              style: TextStyle(fontSize: 6, color: Colors.yellowAccent, fontWeight: FontWeight.bold),
+                            Container(
+                              width: 30,
+                              height: 1.5,
+                              color: Colors.blue,
+                              margin: const EdgeInsets.symmetric(vertical: 2),
                             ),
-
                             const Text(
                               '189',
-                              style: TextStyle(fontSize: 12, color: Colors.green, fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                itemCount: sortedDocs.length,
-                itemBuilder: (context, index) {
-                  final doc = sortedDocs[index];
-                  final name = doc.id;
-                  final count = (doc.data() as Map<String, dynamic>)['count'] ?? 0;
-                  final double progress = maxCount > 0 ? count / maxCount : 0;
-                  final double percentage = totalVoters > 0 ? (count / totalVoters) * 100 : 0;
-
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.03),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.white.withOpacity(0.05)),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(child: Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14))),
-                            Text('$count', style: const TextStyle(color: Colors.tealAccent, fontWeight: FontWeight.bold, fontSize: 16)),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Stack(
-                          children: [
-                            Container(height: 6, decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(3))),
-                            AnimatedContainer(
-                              duration: const Duration(seconds: 1),
-                              height: 6,
-                              width: (MediaQuery.of(context).size.width * 0.4) * progress,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(colors: [Colors.teal.shade700, Colors.tealAccent]),
-                                borderRadius: BorderRadius.circular(3),
+                              style: TextStyle(
+                                fontSize: 11, 
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold,
+                                height: 1.1,
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 8),
-                        Text('${percentage.toStringAsFixed(1)}% of voters', style: const TextStyle(color: Colors.white38, fontSize: 10)),
                       ],
                     ),
-                  );
-                },
-              ),
-            ),
-            const Divider(color: Colors.white10, height: 1),
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 16),
-              child: Text(
-                'Created with ❤️ by Ishaque',
-                style: TextStyle(color: Colors.white30, fontSize: 10, letterSpacing: 0.5),
-              ),
-            ),
-          ],
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    itemCount: sortedDocs.length,
+                    itemBuilder: (context, index) {
+                      final doc = sortedDocs[index];
+                      final name = doc.id;
+                      final count = (doc.data() as Map<String, dynamic>)['count'] ?? 0;
+                      final double progress = maxCount > 0 ? count / maxCount : 0;
+                      final double percentage = totalVoters > 0 ? (count / totalVoters) * 100 : 0;
+
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 16),
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.03),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: Colors.white.withOpacity(0.05)),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(child: Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14))),
+                                Text('$count', style: const TextStyle(color: Colors.tealAccent, fontWeight: FontWeight.bold, fontSize: 16)),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Stack(
+                              children: [
+                                Container(height: 6, width: double.infinity, decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(3))),
+                                LayoutBuilder(
+                                  builder: (context, constraints) {
+                                    return AnimatedContainer(
+                                      duration: const Duration(seconds: 1),
+                                      height: 6,
+                                      width: constraints.maxWidth * progress,
+                                      decoration: BoxDecoration(
+                                        gradient: const LinearGradient(colors: [Color(0xFF0D9488), Colors.tealAccent]),
+                                        borderRadius: BorderRadius.circular(3),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Text('${percentage.toStringAsFixed(1)}% of voters chose this', style: const TextStyle(color: Colors.white38, fontSize: 10)),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const Divider(color: Colors.white10, height: 1),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: Text(
+                    'Created with ❤️ by Ishaque',
+                    style: TextStyle(color: Colors.white30, fontSize: 10, letterSpacing: 0.5),
+                  ),
+                ),
+              ],
+            );
+          },
         );
       },
     );
