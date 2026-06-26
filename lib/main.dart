@@ -108,10 +108,10 @@ class _SurveyPageState extends State<SurveyPage> {
     'പിന്നിട്ട വഴികളിലെ മറക്കാത്ത ഓർമ്മകൾ',
     'പഴയ ഓർമ്മകളുടെ ഒച്ചകൾ',
     'നോട്ട്ബുക്കും മഷിപേനയും',
-    'തിриകേ നിൻ അരികിൽ',
-    'തിриകെ തിരുമുറ്റത്ത്',
-    'തിриകെ ക്ലാസ്സിലേക്ക്',
-    'തിриകെ -2005 -2007',
+    'തിരികേ നിൻ അരികിൽ',
+    'തിരികെ തിരുമുറ്റത്ത്',
+    'തിരികെ ക്ലാസ്സിലേക്ക്',
+    'തിരികെ -2005 -2007',
     'തിരികെ',
     'ചങ്ങാതിക്കൂട്ടം',
     'ക്ലാസ്സ്‌ റൂം കഥകൾ',
@@ -210,7 +210,8 @@ class _SurveyPageState extends State<SurveyPage> {
   final TextEditingController _phoneController = TextEditingController();
 
   final GoogleSignIn _googleSignIn = GoogleSignIn(
-    clientId: "1066357872079-m1um9ndirjp8ki0gaurg439um6j095rm.apps.googleusercontent.com",
+    clientId:
+        "1066357872079-m1um9ndirjp8ki0gaurg439um6j095rm.apps.googleusercontent.com",
   );
 
   bool _isLoading = false;
@@ -255,20 +256,31 @@ class _SurveyPageState extends State<SurveyPage> {
     String input = _phoneController.text.trim();
     String digitsOnly = input.replaceAll(RegExp(r'\D'), '');
 
-    if (digitsOnly.length > 10) {
-      if (digitsOnly.startsWith('91') && digitsOnly.length == 12) {
-        digitsOnly = digitsOnly.substring(2);
-      } else {
-        digitsOnly = digitsOnly.substring(digitsOnly.length - 10);
+    // SMART NORMALIZATION
+    bool isWhitelisted = masterNumbersList.contains(digitsOnly);
+
+    if (!isWhitelisted) {
+      String normalized = digitsOnly;
+      if (digitsOnly.startsWith('00')) {
+        normalized = digitsOnly.substring(2);
+      } else if (digitsOnly.startsWith('0')) {
+        normalized = digitsOnly.substring(1);
+      }
+
+      isWhitelisted =
+          masterNumbersList.contains(normalized) ||
+          masterNumbersList.any(
+            (whitelisted) => normalized.endsWith(whitelisted),
+          );
+
+      if (isWhitelisted) {
+        digitsOnly = masterNumbersList.firstWhere(
+          (whitelisted) => normalized.endsWith(whitelisted),
+        );
       }
     }
 
-    if (digitsOnly.length != 10) {
-      _showSnackBar('Enter a valid 10-digit phone number.', isError: true);
-      return;
-    }
-
-    if (!indianNumbersWhitelist.contains(digitsOnly)) {
+    if (!isWhitelisted) {
       _showSnackBar(
         'hei , why are you here? remove your disguises and walk away..',
         isError: true,
@@ -276,7 +288,7 @@ class _SurveyPageState extends State<SurveyPage> {
       return;
     }
 
-    String phoneNumber = '+91$digitsOnly';
+    String phoneNumber = digitsOnly;
     setState(() => _isLoading = true);
 
     try {
@@ -289,14 +301,15 @@ class _SurveyPageState extends State<SurveyPage> {
         _showSnackBar('This phone number has already voted!', isError: true);
         return;
       }
-      
+
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) {
         setState(() => _isLoading = false);
         return; // User cancelled the sign-in
       }
 
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
 
       final AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
@@ -557,12 +570,13 @@ class _SurveyPageState extends State<SurveyPage> {
           controller: _phoneController,
           decoration: const InputDecoration(
             labelText: 'Phone Number',
-            prefixText: '+91 ',
+            hintText: 'Phone Number',
+            prefixIcon: Icon(Icons.phone_outlined),
             counterText: "",
           ),
           keyboardType: TextInputType.phone,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-          maxLength: 10,
+          maxLength: 12,
         ),
         const SizedBox(height: 24),
         ElevatedButton.icon(
@@ -644,7 +658,7 @@ class _SurveyPageState extends State<SurveyPage> {
                               height: 70,
                               width: 70,
                               child: CircularProgressIndicator(
-                                value: totalVoters / 183,
+                                value: totalVoters / 189,
                                 strokeWidth: 8,
                                 backgroundColor: Colors.white.withValues(
                                   alpha: 0.1,
@@ -674,7 +688,7 @@ class _SurveyPageState extends State<SurveyPage> {
                                   ),
                                 ),
                                 const Text(
-                                  '183',
+                                  '189',
                                   style: TextStyle(
                                     fontSize: 11,
                                     color: Colors.red,
@@ -806,42 +820,60 @@ class _SurveyPageState extends State<SurveyPage> {
   }
 }
 
-List<String> indianNumbersWhitelist = [
-  // From Batch of 10 Images (108 Numbers)
-  "9947522667", "9656211847", "9847731411", "9947891642", "9605608058",
-  "9809452838", "7306997433", "8921376533", "9746791145", "7510966206",
-  "9656800871", "9745656209", "9656304985", "9746356526", "7994719575",
-  "9633183250", "9496810174", "9526418052", "7025203092", "9400118114",
-  "8943085080", "8281574297", "9895199569", "9995254327", "7505470074",
-  "7907088906", "8921536893", "9895369108", "9562704292", "7560852958",
-  "9562128141", "8129297467", "7356373547", "8547920760", "9656033106",
-  "9562427467", "9947643030", "9656073725", "9544152716", "9567476923",
-  "7012628868", "9961553555", "9633096586", "9544656251", "7558097098",
-  "9747289393", "7034496329", "8113965012", "9562779378", "9895334112",
-  "8078150247", "9895301964", "9961744491", "8157036812", "9962337580",
-  "9961512709", "8281327417", "9446010928", "9656865923", "9747183762",
-  "9744898481", "9061606664", "9567180872", "9746052952", "8606467675",
-  "9947794293", "9846873675", "9605934913", "9961005669", "9656206342",
-  "9567776369", "9526506256", "9207256074", "9207178098", "9605657990",
-  "9895903953", "7006951179", "9544489604", "9605154294", "8848760770",
-  "9747831203", "9656069038", "7994428929", "9995589336", "9061253947",
-  "9947144347", "9961632556",
+List<String> masterNumbersList = [
+  // --- INDIAN NUMBERS (10 Digits) ---
+  '9947522667', '9656211847', '9847731411', '9947891642', '9605608058',
+  '9809452838', '7306974333', '8921376533', '9746791145', '7510966206',
+  '9656800871', '9745656209', '9656304985', '9746356526', '7994719575',
+  '9633183250', '9496810174', '9526418052', '7025203092', '9400118114',
+  '8943085080', '8281574297', '9895199569', '9995254327', '7505470074',
+  '7907088906', '8921536893', '9895369108', '9562704292', '7560852958',
+  '9562128141', '8129297467', '7356373547', '7994428929', '9995589336',
+  '9061253947', '9947144347', '9961632556', '9895556306', '9746750207',
+  '8891208874', '9544616652', '8547920760', '9656033106', '9562427467',
+  '9947643030', '9656073725', '9544152716', '9567476923', '7012628868',
+  '9961553555', '9633096586', '9544656251', '7558097098', '9747289393',
+  '7034496329', '8113965012', '9562779378', '9895334112', '8078150247',
+  '9895301964', '9961744491', '8157036812', '9962337580', '9961512709',
+  '8281327417', '9446010928', '9656865923', '9747183762', '9744898481',
+  '9061606664', '9567180872', '9746052952', '8606467675', '9947794293',
+  '9846873675', '9605934913', '9961005669', '9656206342', '9567776369',
+  '9526506256', '9207256074', '9207178098', '9605657990', '9895903953',
+  '7006951179', '9544489604', '9605154294', '8848760770', '9747831203',
+  '9656069038', '9562276262', '9562025774', '8943808797', '9961788983',
+  '7510974686', '9947686243', '7736349322', '9746719599', '8129585321',
+  '8848632224', '8606592202', '9544104022', '9400696415', '9164350066',
+  '9947522077', '9895122019', '9037166137', '9895701144', '9526754272',
+  '9995527536', '8606336346', '7559031442', '9526326715', '9895554421',
+  '9061453503', '9847372722', '6238882474', '8714264711', '9400920858',
+  '9567122725', '9567979532', '9656591860', '9745015924', '9961795262',
+  '9567153098', '9074245724', '8078990371', '9562181264', '9744808220',
+  '7909240348', '9847845161', '8086665919', '9633232255', '8304026362',
+  '9995551109', '9895565544', '8807457346', '9656515006', '9946599751',
+  '9746658738', '9633860581', '8606517627', '9995780413', '8907829580',
+  '9809518088', '9746862135', '9747808887', '9895373262', '9544495993',
+  '9611821338', '7306997433',
 
-  // From Batch of 5 Images (53 Numbers)
-  "9895556306", "9746750207", "8891208874", "9544616652", "9562276262",
-  "9562025774", "8943808797", "9961788983", "7510974686", "9947686243",
-  "7736349322", "9746719599", "8129585321", "8848632224", "8606592202",
-  "9544104022", "9400696415", "9164350066", "9947522077", "9895122019",
-  "9037166137", "9895701144", "9526754272", "9995527536", "8606336346",
-  "7559031442", "9526326715", "9895554421", "9061453503", "9847372722",
-  "6238882474", "8714264711", "9400920858", "9567122725", "9567979532",
-  "9656591860", "9745015924", "9961795262", "9567153098", "9074245724",
-  "8078990371", "9562181264", "9744808220", "7909240348", "9847845161",
-  "8086665919",
+  // --- UAE NUMBERS (+971: 9 Digits) ---
+  '527289578', '522520597', '506206577', '561673454', '507786158',
+  '565912404', '559763823', '561410242', '527789925', '556303283',
+  '505275523', '555613793', '524093727', '528629618', '509397768',
+  '561938340', '566627276',
 
-  // From the Next 26 Manual Numbers
-  "9633232255", "8304026362", "9995551109", "9895565544", "8807457346",
-  "9656515006", "9946599751", "9746658738", "9633860581", "8606517627",
-  "9995780413", "8907829580", "9809518088", "9746862135", "9747808887",
-  "9895373262", "9544495993", "9611821338", "9747344535",
+  // --- QATAR NUMBERS (+974: 8 Digits) ---
+  '31217879', '30373717', '70559467', '66445481', '71304591',
+  '71760018', '77581315', '55645833', '77369323', '31109835',
+  '66965449',
+
+  // --- OMAN NUMBERS (+968: 8 Digits) ---
+  '93226121', '98439717', '91062912', '79767117',
+
+  // --- SAUDI ARABIA NUMBERS (+966: 9 Digits) ---
+  '571890904',
+
+  // --- UK NUMBERS (+44: 10 Digits) ---
+  '7586333143',
+
+  // --- US/CANADA NUMBERS (+1: 10 Digits) ---
+  '2262082009',
 ];
