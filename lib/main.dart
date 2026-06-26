@@ -1,9 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:survey/firebase_options.dart';
 
 void main() async {
@@ -38,8 +38,11 @@ class MyApp extends StatelessWidget {
         ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
-          fillColor: Colors.white.withOpacity(0.05),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          fillColor: Colors.white.withValues(alpha: 0.05),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 16,
+          ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide.none,
@@ -60,8 +63,13 @@ class MyApp extends StatelessWidget {
             backgroundColor: Colors.tealAccent,
             foregroundColor: const Color(0xFF0F172A),
             minimumSize: const Size.fromHeight(60),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            textStyle: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
             elevation: 8,
           ),
         ),
@@ -80,46 +88,131 @@ class SurveyPage extends StatefulWidget {
 
 class _SurveyPageState extends State<SurveyPage> {
   final List<String> _options = [
-    'സൗഹൃദ സംഗമം', 'സൗഹൃദ കൂട്ടായ്മ', 'സ്മൃതി മധുരം', 'സ്മൃതി തീരം',
-    'സ്മരണിക 2005-2007', 'സ്നേഹക്കൂട്', 'സഖിത്വം', 'വീണ്ടും ഒരിക്കൽ',
-    'വർഷങ്ങൾക്ക് ശേഷം ഒരു ഒന്നന്നര വരവ്', 'വർഷങ്ങൾക്കുശേഷം, ഒരിക്കൽ കൂടി',
-    'മെമ്മറീസ് 2007', 'മയിൽ‌പീലി', 'മനസ്സിലുണ്ടോ ആ പ്ലസ്ടു കാലം',
-    'മധുരിക്കും പതിനേഴിൽ', 'മധുര സ്മരണകൾ', 'പ്രതിധ്വനി', 'പുന സംഗമം',
-    'പിന്നിട്ട വഴികളിലെ മറക്കാത്ത ഓർമ്മകൾ', 'പഴയ ഓർമ്മകളുടെ ഒച്ചകൾ',
-    'നോട്ട്ബുക്കും മഷിപേനയും', 'തിരികേ നിൻ അരികിൽ', 'തിരികെ തിരുമുറ്റത്ത്',
-    'തിരികെ ക്ലാസ്സിലേക്ക്', 'തിരികെ -2005 -2007', 'തിരികെ', 'ചങ്ങാതിക്കൂട്ടം',
-    'ക്ലാസ്സ്‌ റൂം കഥകൾ', 'ഓലപീപ്പി', 'ഓർമ്മച്ചെപ്പ് 2005-2007', 'ഓർമ്മച്ചെപ്പ്',
-    'ഓർമ്മക്കൂട്', 'ഓർമ്മകളുടെ ഇടവഴി', 'ഓർമ്മകളുടെ ഇടനാഴി', 'ഓർമ്മകളിലൂടെ',
-    'ഓർമ്മകളിൽ 2005-2007', 'ഓർമകളിലേക്ക് ഒരു മടക്കം', 'ഓർമ തണലിൽ ഒരിക്കൽ കൂടി',
-    'ഒഴുകുകയായ് വീണ്ടും', 'ഏകത്ര', 'ഇന്നലെകളിലെക്ക്', 'ഇന്നലകളെ ഓർമ്മകൾ 2005-2007',
-    'ഇന്നലകളിലൂടെ', 'ഇന്നലകളിൽ', 'ഇത്തിരി നേരം, ഒത്തിരി കാര്യം',
-    'ഇങ്ങള് ബാ നമ്മുക്കു വൈബ് ആക്കാം', 'ആരവം.05-07', 'അങ്ങനെയൊരു അവധിക്കാലം',
-    'Vicennia', 'വീണ്ടുമീ പുഷ്പവാടിയിൽ', 'Two Decades Of Memories',
-    'Two Decades - 2007 Reunion', 'Together Again', 'Timeless Ties',
-    'Time Machine', 'Then And Now', 'The Sophomores Of GHSSK', 'The Sequel',
-    'The Second Generation', 'The Return', 'The Nostalgia Meet', 'The Lost Bell',
-    'The Grand Return', 'The First Junior', 'The Bell Rings Again',
-    'The 2007 Gathering', 'That Time.. That Form', 'Soulbound', 'Second Wave',
-    'Rewind 2005.2007', 'Reunite 20', 'Re-Connect \'07', 'Plus 2❤️', 'Philautia',
-    'Petals Come Together', 'ഓർമക്കൂട്ടിൽ ഒരുവട്ടം കൂടി', 'Old Is Gold',
-    'Millennials\' Homecoming:Edition 2005-2007', 'Millennial Gen',
-    'Millenials: Back To The Batch (2005-2007)', 'Millenial 2026',
-    'Ice Cream Memories', 'Golden Reunion', 'Flashback 20 -', 'Rewind Plustwo',
-    'Evergreen Memories', 'Era \'07 To Now....', 'Echoes Of 2007',
-    'Crazy After 20 Years', 'Classroom ഡയറീസ്', 'Classmates 2.0', 'Chill Mode On',
-    'Beyound Years', 'Bench Mark', 'Batchmate\'S Day', 'Batch 07: Unwind',
-    'Back To The Hallways- 20 Year Re- Union', 'Back To The Bench',
-    'Back To Schooldays', 'Back To GHSSK', 'Back To Bench.',
-    'Back To Bench Buddies.....Chapter One', 'A Lot Of Things For A While',
-    '90\'Kids', '20 Years Later – Epanénosi', '20 Years Later', 'ദേവദാരു പൂത്തകാലം',
-    'ഒരുമ', 'അറിവോരം', 'ഞങ്ങൾ', 'Two decades one bond', 'Rewind20',
-    'സ്നേഹപൂർവ്വം', 'ചേക്കേറും ചില്ല', 'ഒരുമയുടെ ഓർമ്മകൾ', 'ഒരു വട്ടം കൂടി'
+    'സൗഹൃദ സംഗമം',
+    'സൗഹൃദ കൂട്ടായ്മ',
+    'സ്മൃതി മധുരം',
+    'സ്മൃതി തീരം',
+    'സ്മരണിക 2005-2007',
+    'സ്നേഹക്കൂട്',
+    'സഖിത്വം',
+    'വീണ്ടും ഒരിക്കൽ',
+    'വർഷങ്ങൾക്ക് ശേഷം ഒരു ഒന്നന്നര വരവ്',
+    'വർഷങ്ങൾക്കുശേഷം, ഒരിക്കൽ കൂടി',
+    'മെമ്മറീസ് 2007',
+    'മയിൽ‌പീലി',
+    'മനസ്സിലുണ്ടോ ആ പ്ലസ്ടു കാലം',
+    'മധുരിക്കും പതിനേഴിൽ',
+    'മധുര സ്മരണകൾ',
+    'പ്രതിധ്വനി',
+    'പുന സംഗമം',
+    'പിന്നിട്ട വഴികളിലെ മറക്കാത്ത ഓർമ്മകൾ',
+    'പഴയ ഓർമ്മകളുടെ ഒച്ചകൾ',
+    'നോട്ട്ബുക്കും മഷിപേനയും',
+    'തിриകേ നിൻ അരികിൽ',
+    'തിриകെ തിരുമുറ്റത്ത്',
+    'തിриകെ ക്ലാസ്സിലേക്ക്',
+    'തിриകെ -2005 -2007',
+    'തിരികെ',
+    'ചങ്ങാതിക്കൂട്ടം',
+    'ക്ലാസ്സ്‌ റൂം കഥകൾ',
+    'ഓലപീപ്പി',
+    'ഓർമ്മച്ചെപ്പ് 2005-2007',
+    'ഓർമ്മച്ചെപ്പ്',
+    'ഓർമ്മക്കൂട്',
+    'ഓർമ്മകളുടെ ഇടവഴി',
+    'ഓർമ്മകളുടെ ഇടനാഴി',
+    'ഓർമ്മകളിലൂടെ',
+    'ഓർമ്മകളിൽ 2005-2007',
+    'ഓർമകളിലേക്ക് ഒരു മടക്കം',
+    'ഓർമ തണലിൽ ഒരിക്കൽ കൂടി',
+    'ഒഴുകുകയായ് വീണ്ടും',
+    'ഏകത്ര',
+    'ഇന്നലെകളിലെക്ക്',
+    'ഇന്നലകളെ ഓർമ്മകൾ 2005-2007',
+    'ഇന്നലകളിലൂടെ',
+    'ഇന്നലകളിൽ',
+    'ഇത്തിരി നേരം, ഒത്തിരി കാര്യം',
+    'ഇങ്ങള് ബാ നമ്മുക്കു വൈബ് ആക്കാം',
+    'ആരവം.05-07',
+    'അങ്ങനെയൊരു അവധിക്കാലം',
+    'Vicennia',
+    'വീണ്ടുമീ പുഷ്പവാടിയിൽ',
+    'Two Decades Of Memories',
+    'Two Decades - 2007 Reunion',
+    'Together Again',
+    'Timeless Ties',
+    'Time Machine',
+    'Then And Now',
+    'The Sophomores Of GHSSK',
+    'The Sequel',
+    'The Second Generation',
+    'The Return',
+    'The Nostalgia Meet',
+    'The Lost Bell',
+    'The Grand Return',
+    'The First Junior',
+    'The Bell Rings Again',
+    'The 2007 Gathering',
+    'That Time.. That Form',
+    'Soulbound',
+    'Second Wave',
+    'Rewind 2005.2007',
+    'Reunite 20',
+    'Re-Connect \'07',
+    'Plus 2❤️',
+    'Philautia',
+    'Petals Come Together',
+    'ഓർമക്കൂട്ടിൽ ഒരുവട്ടം കൂടി',
+    'Old Is Gold',
+    'Millennials\' Homecoming:Edition 2005-2007',
+    'Millennial Gen',
+    'Millenials: Back To The Batch (2005-2007)',
+    'Millenial 2026',
+    'Ice Cream Memories',
+    'Golden Reunion',
+    'Flashback 20 -',
+    'Rewind Plustwo',
+    'Evergreen Memories',
+    'Era \'07 To Now....',
+    'Echoes Of 2007',
+    'Crazy After 20 Years',
+    'Classroom ഡയറീസ്',
+    'Classmates 2.0',
+    'Chill Mode On',
+    'Beyound Years',
+    'Bench Mark',
+    'Batchmate\'S Day',
+    'Batch 07: Unwind',
+    'Back To The Hallways- 20 Year Re- Union',
+    'Back To The Bench',
+    'Back To Schooldays',
+    'Back To GHSSK',
+    'Back To Bench.',
+    'Back To Bench Buddies.....Chapter One',
+    'A Lot Of Things For A While',
+    '90\'Kids',
+    '20 Years Later – Epanénosi',
+    '20 Years Later',
+    'ദേവദാരു പൂത്തകാലം',
+    'ഒരുമ',
+    'അറിവോരം',
+    'ഞങ്ങൾ',
+    'Two decades one bond',
+    'Rewind20',
+    'സ്നേഹപൂർവ്വം',
+    'ചേക്കേറും ചില്ല',
+    'ഒരുമയുടെ ഓർമ്മകൾ',
+    'ഒരു വട്ടം കൂടി',
   ];
 
   final Set<String> _selectedOptions = {};
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
-  
+
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    clientId: "1066357872079-m1um9ndirjp8ki0gaurg439um6j095rm.apps.googleusercontent.com",
+  );
+
   bool _isLoading = false;
   bool _showResults = false;
 
@@ -161,7 +254,7 @@ class _SurveyPageState extends State<SurveyPage> {
 
     String input = _phoneController.text.trim();
     String digitsOnly = input.replaceAll(RegExp(r'\D'), '');
-    
+
     if (digitsOnly.length > 10) {
       if (digitsOnly.startsWith('91') && digitsOnly.length == 12) {
         digitsOnly = digitsOnly.substring(2);
@@ -176,7 +269,10 @@ class _SurveyPageState extends State<SurveyPage> {
     }
 
     if (!indianNumbersWhitelist.contains(digitsOnly)) {
-      _showSnackBar('hei , Outsider !! you are not allowed to vote', isError: true);
+      _showSnackBar(
+        'hei , why are you here? remove your disguises and walk away..',
+        isError: true,
+      );
       return;
     }
 
@@ -184,22 +280,24 @@ class _SurveyPageState extends State<SurveyPage> {
     setState(() => _isLoading = true);
 
     try {
-      final userDoc = await FirebaseFirestore.instance.collection('survey_responses').doc(phoneNumber).get();
+      final userDoc = await FirebaseFirestore.instance
+          .collection('survey_responses')
+          .doc(phoneNumber)
+          .get();
       if (userDoc.exists) {
         setState(() => _isLoading = false);
         _showSnackBar('This phone number has already voted!', isError: true);
         return;
       }
-
-      final GoogleSignIn googleSignIn = GoogleSignIn(clientId: "1066357872079-m1um9ndirjp8ki0gaurg439um6j095rm.apps.googleusercontent.com");
-      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
       
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) {
         setState(() => _isLoading = false);
-        return;
+        return; // User cancelled the sign-in
       }
 
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
       final AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
@@ -217,8 +315,10 @@ class _SurveyPageState extends State<SurveyPage> {
     try {
       final batch = FirebaseFirestore.instance.batch();
       final String name = _nameController.text.trim();
-      
-      final responseRef = FirebaseFirestore.instance.collection('survey_responses').doc(phoneNumber);
+
+      final responseRef = FirebaseFirestore.instance
+          .collection('survey_responses')
+          .doc(phoneNumber);
       batch.set(responseRef, {
         'name': name,
         'selected_options': _selectedOptions.toList(),
@@ -227,12 +327,16 @@ class _SurveyPageState extends State<SurveyPage> {
       });
 
       for (String option in _selectedOptions) {
-        final optionRef = FirebaseFirestore.instance.collection('options').doc(option);
+        final optionRef = FirebaseFirestore.instance
+            .collection('options')
+            .doc(option);
         batch.set(optionRef, {
           'count': FieldValue.increment(1),
         }, SetOptions(merge: true));
 
-        final voterInOptionRef = optionRef.collection('voters').doc(phoneNumber);
+        final voterInOptionRef = optionRef
+            .collection('voters')
+            .doc(phoneNumber);
         batch.set(voterInOptionRef, {
           'name': name,
           'phone': phoneNumber,
@@ -274,7 +378,9 @@ class _SurveyPageState extends State<SurveyPage> {
               children: [
                 _buildHeader(theme),
                 Expanded(
-                  child: isWide ? _buildWideLayout(theme) : _buildMobileLayout(theme),
+                  child: isWide
+                      ? _buildWideLayout(theme)
+                      : _buildMobileLayout(theme),
                 ),
               ],
             ),
@@ -282,7 +388,9 @@ class _SurveyPageState extends State<SurveyPage> {
           if (_isLoading)
             Container(
               color: Colors.black54,
-              child: const Center(child: CircularProgressIndicator(color: Colors.tealAccent)),
+              child: const Center(
+                child: CircularProgressIndicator(color: Colors.tealAccent),
+              ),
             ),
         ],
       ),
@@ -307,11 +415,19 @@ class _SurveyPageState extends State<SurveyPage> {
                 children: [
                   Text(
                     'GHSSK 2007',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.tealAccent),
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.tealAccent,
+                    ),
                   ),
                   Text(
                     'NAMING SURVEY',
-                    style: TextStyle(fontSize: 12, letterSpacing: 2, color: Colors.white54),
+                    style: TextStyle(
+                      fontSize: 12,
+                      letterSpacing: 2,
+                      color: Colors.white54,
+                    ),
                   ),
                 ],
               ),
@@ -322,7 +438,10 @@ class _SurveyPageState extends State<SurveyPage> {
               onPressed: () => setState(() => _showResults = !_showResults),
               child: Text(
                 _showResults ? 'VOTE NOW' : 'LIVE STATUS',
-                style: const TextStyle(color: Colors.tealAccent, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  color: Colors.tealAccent,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
         ],
@@ -341,19 +460,19 @@ class _SurveyPageState extends State<SurveyPage> {
             child: _buildSurveyContent(theme),
           ),
         ),
-        VerticalDivider(width: 1, color: Colors.white.withOpacity(0.1)),
-        Expanded(
-          flex: 1,
-          child: _buildResultsView(theme, showTotal: true),
-        ),
+        VerticalDivider(width: 1, color: Colors.white.withValues(alpha: 0.1)),
+        Expanded(flex: 1, child: _buildResultsView(theme, showTotal: true)),
       ],
     );
   }
 
   Widget _buildMobileLayout(ThemeData theme) {
-    return _showResults 
-      ? _buildResultsView(theme, showTotal: true) 
-      : SingleChildScrollView(padding: const EdgeInsets.all(20), child: _buildSurveyContent(theme));
+    return _showResults
+        ? _buildResultsView(theme, showTotal: true)
+        : SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: _buildSurveyContent(theme),
+          );
   }
 
   Widget _buildSurveyContent(ThemeData theme) {
@@ -363,15 +482,24 @@ class _SurveyPageState extends State<SurveyPage> {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.03),
+            color: Colors.white.withValues(alpha: 0.03),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.white.withOpacity(0.05)),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Pick your 4 favorites', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              Text('${_selectedOptions.length} / 4', style: const TextStyle(color: Colors.tealAccent, fontWeight: FontWeight.bold)),
+              const Text(
+                'Pick your 4 favorites',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              Text(
+                '${_selectedOptions.length} / 4',
+                style: const TextStyle(
+                  color: Colors.tealAccent,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           ),
         ),
@@ -394,7 +522,9 @@ class _SurveyPageState extends State<SurveyPage> {
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
                 decoration: BoxDecoration(
-                  color: isSelected ? Colors.tealAccent : Colors.white.withOpacity(0.05),
+                  color: isSelected
+                      ? Colors.tealAccent
+                      : Colors.white.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 alignment: Alignment.center,
@@ -405,7 +535,9 @@ class _SurveyPageState extends State<SurveyPage> {
                   style: TextStyle(
                     fontSize: 9,
                     color: isSelected ? Colors.black : Colors.white70,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    fontWeight: isSelected
+                        ? FontWeight.bold
+                        : FontWeight.normal,
                   ),
                 ),
               ),
@@ -415,12 +547,19 @@ class _SurveyPageState extends State<SurveyPage> {
         const SizedBox(height: 32),
         TextField(
           controller: _nameController,
-          decoration: const InputDecoration(labelText: 'Full Name', prefixIcon: Icon(Icons.person_outline)),
+          decoration: const InputDecoration(
+            labelText: 'Full Name',
+            prefixIcon: Icon(Icons.person_outline),
+          ),
         ),
         const SizedBox(height: 16),
         TextField(
           controller: _phoneController,
-          decoration: const InputDecoration(labelText: 'Phone Number', prefixText: '+91 ', counterText: ""),
+          decoration: const InputDecoration(
+            labelText: 'Phone Number',
+            prefixText: '+91 ',
+            counterText: "",
+          ),
           keyboardType: TextInputType.phone,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           maxLength: 10,
@@ -428,8 +567,8 @@ class _SurveyPageState extends State<SurveyPage> {
         const SizedBox(height: 24),
         ElevatedButton.icon(
           onPressed: _isLoading ? null : _signInWithGoogle,
-          icon: Icon(Icons.login_outlined),
-          label: const Text('Proceed to vote',textAlign: TextAlign.center,),
+          icon: const Icon(Icons.login_outlined),
+          label: const Text('Proceed to vote', textAlign: TextAlign.center),
         ),
         const SizedBox(height: 40),
         const Center(
@@ -437,7 +576,11 @@ class _SurveyPageState extends State<SurveyPage> {
             children: [
               Text(
                 'Created with ❤️ by Ishaque',
-                style: TextStyle(color: Colors.white30, fontSize: 12, letterSpacing: 0.5),
+                style: TextStyle(
+                  color: Colors.white30,
+                  fontSize: 12,
+                  letterSpacing: 0.5,
+                ),
               ),
               SizedBox(height: 20),
             ],
@@ -449,14 +592,22 @@ class _SurveyPageState extends State<SurveyPage> {
 
   Widget _buildResultsView(ThemeData theme, {bool showTotal = false}) {
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('survey_responses').snapshots(),
+      stream: FirebaseFirestore.instance
+          .collection('survey_responses')
+          .snapshots(),
       builder: (context, votersSnapshot) {
-        final totalVoters = votersSnapshot.hasData ? votersSnapshot.data!.docs.length : 0;
+        final totalVoters = votersSnapshot.hasData
+            ? votersSnapshot.data!.docs.length
+            : 0;
 
         return StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance.collection('options').snapshots(),
           builder: (context, optionsSnapshot) {
-            if (!optionsSnapshot.hasData) return const Center(child: CircularProgressIndicator(color: Colors.tealAccent));
+            if (!optionsSnapshot.hasData) {
+              return const Center(
+                child: CircularProgressIndicator(color: Colors.tealAccent),
+              );
+            }
 
             final docs = optionsSnapshot.data!.docs;
             final sortedDocs = docs.toList()
@@ -466,7 +617,10 @@ class _SurveyPageState extends State<SurveyPage> {
                 return (bData['count'] ?? 0).compareTo(aData['count'] ?? 0);
               });
 
-            final int maxCount = sortedDocs.isNotEmpty ? (sortedDocs.first.data() as Map<String, dynamic>)['count'] ?? 1 : 1;
+            final int maxCount = sortedDocs.isNotEmpty
+                ? (sortedDocs.first.data() as Map<String, dynamic>)['count'] ??
+                      1
+                : 1;
 
             return Column(
               children: [
@@ -475,53 +629,63 @@ class _SurveyPageState extends State<SurveyPage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Live Status', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-                      if (showTotal)
-                    Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        SizedBox(
-                          height: 70,
-                          width: 70,
-                          child: CircularProgressIndicator(
-                            value: totalVoters / 183,
-                            strokeWidth: 8,
-                            backgroundColor: Colors.white.withOpacity(0.1),
-                            color: Colors.tealAccent,
-                            strokeCap: StrokeCap.round,
-                          ),
+                      const Text(
+                        'Live Status',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
                         ),
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
+                      ),
+                      if (showTotal)
+                        Stack(
+                          alignment: Alignment.center,
                           children: [
-                            Text(
-                              '${totalVoters.toInt()}',
-                              style: const TextStyle(
-                                fontSize: 18, 
-                                fontWeight: FontWeight.bold, 
+                            SizedBox(
+                              height: 70,
+                              width: 70,
+                              child: CircularProgressIndicator(
+                                value: totalVoters / 183,
+                                strokeWidth: 8,
+                                backgroundColor: Colors.white.withValues(
+                                  alpha: 0.1,
+                                ),
                                 color: Colors.tealAccent,
-                                height: 1.1,
+                                strokeCap: StrokeCap.round,
                               ),
                             ),
-                            Container(
-                              width: 30,
-                              height: 1.5,
-                              color: Colors.blue,
-                              margin: const EdgeInsets.symmetric(vertical: 2),
-                            ),
-                            const Text(
-                              '183',
-                              style: TextStyle(
-                                fontSize: 11, 
-                                color: Colors.red,
-                                fontWeight: FontWeight.bold,
-                                height: 1.1,
-                              ),
+                            Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  '${totalVoters.toInt()}',
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.tealAccent,
+                                    height: 1.1,
+                                  ),
+                                ),
+                                Container(
+                                  width: 30,
+                                  height: 1.5,
+                                  color: Colors.blue,
+                                  margin: const EdgeInsets.symmetric(
+                                    vertical: 2,
+                                  ),
+                                ),
+                                const Text(
+                                  '183',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.red,
+                                    fontWeight: FontWeight.bold,
+                                    height: 1.1,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                      ],
-                    ),
                     ],
                   ),
                 ),
@@ -532,17 +696,24 @@ class _SurveyPageState extends State<SurveyPage> {
                     itemBuilder: (context, index) {
                       final doc = sortedDocs[index];
                       final name = doc.id;
-                      final count = (doc.data() as Map<String, dynamic>)['count'] ?? 0;
-                      final double progress = maxCount > 0 ? count / maxCount : 0;
-                      final double percentage = totalVoters > 0 ? (count / totalVoters) * 100 : 0;
+                      final count =
+                          (doc.data() as Map<String, dynamic>)['count'] ?? 0;
+                      final double progress = maxCount > 0
+                          ? count / maxCount
+                          : 0;
+                      final double percentage = totalVoters > 0
+                          ? (count / totalVoters) * 100
+                          : 0;
 
                       return Container(
                         margin: const EdgeInsets.only(bottom: 16),
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.03),
+                          color: Colors.white.withValues(alpha: 0.03),
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: Colors.white.withOpacity(0.05)),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.05),
+                          ),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -550,14 +721,36 @@ class _SurveyPageState extends State<SurveyPage> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Expanded(child: Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14))),
-                                Text('$count', style: const TextStyle(color: Colors.tealAccent, fontWeight: FontWeight.bold, fontSize: 16)),
+                                Expanded(
+                                  child: Text(
+                                    name,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  '$count',
+                                  style: const TextStyle(
+                                    color: Colors.tealAccent,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
                               ],
                             ),
                             const SizedBox(height: 12),
                             Stack(
                               children: [
-                                Container(height: 6, width: double.infinity, decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(3))),
+                                Container(
+                                  height: 6,
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white10,
+                                    borderRadius: BorderRadius.circular(3),
+                                  ),
+                                ),
                                 LayoutBuilder(
                                   builder: (context, constraints) {
                                     return AnimatedContainer(
@@ -565,7 +758,12 @@ class _SurveyPageState extends State<SurveyPage> {
                                       height: 6,
                                       width: constraints.maxWidth * progress,
                                       decoration: BoxDecoration(
-                                        gradient: const LinearGradient(colors: [Color(0xFF0D9488), Colors.tealAccent]),
+                                        gradient: const LinearGradient(
+                                          colors: [
+                                            Color(0xFF0D9488),
+                                            Colors.tealAccent,
+                                          ],
+                                        ),
                                         borderRadius: BorderRadius.circular(3),
                                       ),
                                     );
@@ -574,7 +772,13 @@ class _SurveyPageState extends State<SurveyPage> {
                               ],
                             ),
                             const SizedBox(height: 8),
-                            Text('${percentage.toStringAsFixed(1)}% of voters chose this', style: const TextStyle(color: Colors.white38, fontSize: 10)),
+                            Text(
+                              '${percentage.toStringAsFixed(1)}% of voters chose this',
+                              style: const TextStyle(
+                                color: Colors.white38,
+                                fontSize: 10,
+                              ),
+                            ),
                           ],
                         ),
                       );
@@ -586,7 +790,11 @@ class _SurveyPageState extends State<SurveyPage> {
                   padding: EdgeInsets.symmetric(vertical: 16),
                   child: Text(
                     'Created with ❤️ by Ishaque',
-                    style: TextStyle(color: Colors.white30, fontSize: 10, letterSpacing: 0.5),
+                    style: TextStyle(
+                      color: Colors.white30,
+                      fontSize: 10,
+                      letterSpacing: 0.5,
+                    ),
                   ),
                 ),
               ],
@@ -635,5 +843,5 @@ List<String> indianNumbersWhitelist = [
   "9633232255", "8304026362", "9995551109", "9895565544", "8807457346",
   "9656515006", "9946599751", "9746658738", "9633860581", "8606517627",
   "9995780413", "8907829580", "9809518088", "9746862135", "9747808887",
-  "9895373262", "9544495993", "9611821338", "9747344535"
+  "9895373262", "9544495993", "9611821338", "9747344535",
 ];
