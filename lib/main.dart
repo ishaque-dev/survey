@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:survey/firebase_options.dart';
 
@@ -118,10 +119,7 @@ class _SurveyPageState extends State<SurveyPage> {
   final Set<String> _selectedOptions = {};
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _otpController = TextEditingController();
   
-  String? _verificationId;
-  bool _otpSent = false;
   bool _isLoading = false;
   bool _showResults = false;
 
@@ -151,7 +149,7 @@ class _SurveyPageState extends State<SurveyPage> {
     );
   }
 
-  Future<void> _sendOtp() async {
+  Future<void> _signInWithGoogle() async {
     if (_nameController.text.trim().isEmpty) {
       _showSnackBar('Please enter your name.', isError: true);
       return;
@@ -164,7 +162,6 @@ class _SurveyPageState extends State<SurveyPage> {
     String input = _phoneController.text.trim();
     String digitsOnly = input.replaceAll(RegExp(r'\D'), '');
     
-    // Normalize to 10 digits
     if (digitsOnly.length > 10) {
       if (digitsOnly.startsWith('91') && digitsOnly.length == 12) {
         digitsOnly = digitsOnly.substring(2);
@@ -178,9 +175,8 @@ class _SurveyPageState extends State<SurveyPage> {
       return;
     }
 
-    // Whitelist check
     if (!indianNumbersWhitelist.contains(digitsOnly)) {
-      _showSnackBar('hei , why are you here? remove your disguises and walk away..', isError: true);
+      _showSnackBar('hei , Outsider !! you are not allowed to vote', isError: true);
       return;
     }
 
@@ -195,49 +191,25 @@ class _SurveyPageState extends State<SurveyPage> {
         return;
       }
 
-      await FirebaseAuth.instance.verifyPhoneNumber(
-        phoneNumber: phoneNumber,
-        verificationCompleted: (PhoneAuthCredential credential) async {
-          await FirebaseAuth.instance.signInWithCredential(credential);
-          _saveData(phoneNumber);
-        },
-        verificationFailed: (FirebaseAuthException e) {
-          setState(() => _isLoading = false);
-          _showSnackBar('Verification failed: ${e.message}', isError: true);
-        },
-        codeSent: (String verificationId, int? resendToken) {
-          setState(() {
-            _verificationId = verificationId;
-            _otpSent = true;
-            _isLoading = false;
-          });
-          _showSnackBar('OTP code sent to $phoneNumber');
-        },
-        codeAutoRetrievalTimeout: (String verificationId) {
-          _verificationId = verificationId;
-        },
-      );
-    } catch (e) {
-      setState(() => _isLoading = false);
-      _showSnackBar('Error: $e', isError: true);
-    }
-  }
+      final GoogleSignIn googleSignIn = GoogleSignIn(clientId: "1066357872079-m1um9ndirjp8ki0gaurg439um6j095rm.apps.googleusercontent.com");
+      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+      
+      if (googleUser == null) {
+        setState(() => _isLoading = false);
+        return;
+      }
 
-  Future<void> _verifyOtp() async {
-    if (_verificationId == null || _otpController.text.isEmpty) return;
-    setState(() => _isLoading = true);
-    try {
-      PhoneAuthCredential credential = PhoneAuthProvider.credential(
-        verificationId: _verificationId!,
-        smsCode: _otpController.text.trim(),
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
       );
+
       await FirebaseAuth.instance.signInWithCredential(credential);
-      String phoneNumber = _phoneController.text.trim();
-      if (phoneNumber.length == 10) phoneNumber = '+91$phoneNumber';
       _saveData(phoneNumber);
     } catch (e) {
       setState(() => _isLoading = false);
-      _showSnackBar('Invalid OTP code.', isError: true);
+      _showSnackBar('Login failed: $e', isError: true);
     }
   }
 
@@ -274,9 +246,7 @@ class _SurveyPageState extends State<SurveyPage> {
         setState(() {
           _isLoading = false;
           _selectedOptions.clear();
-          _otpSent = false;
           _phoneController.clear();
-          _otpController.clear();
           _nameController.clear();
           _showResults = true;
         });
@@ -448,31 +418,19 @@ class _SurveyPageState extends State<SurveyPage> {
           decoration: const InputDecoration(labelText: 'Full Name', prefixIcon: Icon(Icons.person_outline)),
         ),
         const SizedBox(height: 16),
-        if (!_otpSent) ...[
-          TextField(
-            controller: _phoneController,
-            decoration: const InputDecoration(labelText: 'Phone Number', prefixText: '+91 ', counterText: ""),
-            keyboardType: TextInputType.phone,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            maxLength: 10,
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: _isLoading ? null : _sendOtp,
-            child: const Text('SUBMIT & SEND OTP'),
-          ),
-        ] else ...[
-          TextField(
-            controller: _otpController,
-            decoration: const InputDecoration(labelText: 'Verification Code', prefixIcon: Icon(Icons.lock_outline)),
-            keyboardType: TextInputType.number,
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: _isLoading ? null : _verifyOtp,
-            child: const Text('VERIFY & VOTE'),
-          ),
-        ],
+        TextField(
+          controller: _phoneController,
+          decoration: const InputDecoration(labelText: 'Phone Number', prefixText: '+91 ', counterText: ""),
+          keyboardType: TextInputType.phone,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          maxLength: 10,
+        ),
+        const SizedBox(height: 24),
+        ElevatedButton.icon(
+          onPressed: _isLoading ? null : _signInWithGoogle,
+          icon: Icon(Icons.login_outlined),
+          label: const Text('Proceed to vote',textAlign: TextAlign.center,),
+        ),
         const SizedBox(height: 40),
         const Center(
           child: Column(
@@ -677,5 +635,5 @@ List<String> indianNumbersWhitelist = [
   "9633232255", "8304026362", "9995551109", "9895565544", "8807457346",
   "9656515006", "9946599751", "9746658738", "9633860581", "8606517627",
   "9995780413", "8907829580", "9809518088", "9746862135", "9747808887",
-  "9895373262", "9544495993", "9611821338","9747344535"
+  "9895373262", "9544495993", "9611821338", "9747344535"
 ];
