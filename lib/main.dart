@@ -292,11 +292,23 @@ class _SurveyPageState extends State<SurveyPage> {
     setState(() => _isLoading = true);
 
     try {
+      // Check for both NEW format and LEGACY format (+91...)
       final userDoc = await FirebaseFirestore.instance
           .collection('survey_responses')
           .doc(phoneNumber)
           .get();
-      if (userDoc.exists) {
+      
+      bool alreadyVoted = userDoc.exists;
+      
+      if (!alreadyVoted && phoneNumber.length == 10) {
+        final legacyDoc = await FirebaseFirestore.instance
+            .collection('survey_responses')
+            .doc('+91$phoneNumber')
+            .get();
+        alreadyVoted = legacyDoc.exists;
+      }
+
+      if (alreadyVoted) {
         setState(() => _isLoading = false);
         _showSnackBar('This phone number has already voted!', isError: true);
         return;
@@ -852,7 +864,7 @@ List<String> masterNumbersList = [
   '9995551109', '9895565544', '8807457346', '9656515006', '9946599751',
   '9746658738', '9633860581', '8606517627', '9995780413', '8907829580',
   '9809518088', '9746862135', '9747808887', '9895373262', '9544495993',
-  '9611821338', '7306997433',
+  '9611821338', '7306997433','9747344535'
 
   // --- UAE NUMBERS (+971: 9 Digits) ---
   '527289578', '522520597', '506206577', '561673454', '507786158',
