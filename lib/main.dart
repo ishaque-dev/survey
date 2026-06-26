@@ -282,7 +282,7 @@ class _SurveyPageState extends State<SurveyPage> {
 
     if (!isWhitelisted) {
       _showSnackBar(
-        'hei , why are you here? remove your disguises and walk away..',
+        'hei,Outsider !! You are not allowed to vote',
         isError: true,
       );
       return;
