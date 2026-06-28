@@ -1104,7 +1104,7 @@ class _SurveyPageState extends State<SurveyPage>
                             const SizedBox(height: 4),
                             Text(
                               hasName
-                                  ? 'Thank you, $name!'
+                                  ? 'Thank you for voting, $name ! '
                                   : 'Waiting for first vote',
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
