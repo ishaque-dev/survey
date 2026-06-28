@@ -422,6 +422,7 @@ class _SurveyPageState extends State<SurveyPage>
       batch.set(lastVoteRef, {
         'name': name,
         'timestamp': FieldValue.serverTimestamp(),
+        'phone':phoneNumber
       });
 
       for (String option in _selectedOptions) {
