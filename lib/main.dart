@@ -273,7 +273,7 @@ class _SurveyPageState extends State<SurveyPage>
 
   Future<void> _openSupportLink() async {
     final uri = Uri.parse(appShareLink);
-    final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    final opened = await launchUrl(uri, mode: LaunchMode.platformDefault);
 
     if (!opened) {
       await Clipboard.setData(const ClipboardData(text: appShareLink));
