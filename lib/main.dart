@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -217,6 +218,10 @@ class _SurveyPageState extends State<SurveyPage> {
   bool _isLoading = false;
   bool _showResults = false;
 
+  bool get _useAppleSignInFlow =>
+      defaultTargetPlatform == TargetPlatform.iOS ||
+      defaultTargetPlatform == TargetPlatform.macOS;
+
   void _onOptionSelected(bool selected, String option) {
     setState(() {
       if (selected) {
@@ -289,51 +294,80 @@ class _SurveyPageState extends State<SurveyPage> {
     }
 
     String phoneNumber = digitsOnly;
-    setState(() => _isLoading = true);
 
     try {
-      // Check for both NEW format and LEGACY format (+91...)
-      final userDoc = await FirebaseFirestore.instance
-          .collection('survey_responses')
-          .doc(phoneNumber)
-          .get();
-      
-      bool alreadyVoted = userDoc.exists;
-      
-      if (!alreadyVoted && phoneNumber.length == 10) {
-        final legacyDoc = await FirebaseFirestore.instance
-            .collection('survey_responses')
-            .doc('+91$phoneNumber')
-            .get();
-        alreadyVoted = legacyDoc.exists;
+      // Safari/iOS blocks auth popups if they are opened after awaited work.
+      // Keep that sign-in-first flow only for Apple platforms.
+      final bool useAppleSignInFlow = _useAppleSignInFlow;
+      if (useAppleSignInFlow) {
+        final signedIn = await _authenticateWithGoogle();
+        if (!signedIn) return;
+      } else {
+        setState(() => _isLoading = true);
       }
 
-      if (alreadyVoted) {
+      if (await _hasAlreadyVoted(phoneNumber)) {
         setState(() => _isLoading = false);
         _showSnackBar('This phone number has already voted!', isError: true);
         return;
       }
 
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) {
-        setState(() => _isLoading = false);
-        return; // User cancelled the sign-in
+      if (!useAppleSignInFlow) {
+        final signedIn = await _authenticateWithGoogle();
+        if (!signedIn) {
+          setState(() => _isLoading = false);
+          return;
+        }
       }
 
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
-
-      final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      await FirebaseAuth.instance.signInWithCredential(credential);
-      _saveData(phoneNumber);
+      await _saveData(phoneNumber);
     } catch (e) {
-      setState(() => _isLoading = false);
-      _showSnackBar('Login failed: $e', isError: true);
+      if (mounted) {
+        setState(() => _isLoading = false);
+        _showSnackBar('Login failed: $e', isError: true);
+      }
     }
+  }
+
+  Future<bool> _hasAlreadyVoted(String phoneNumber) async {
+    // Check for both NEW format and LEGACY format (+91...)
+    final userDoc = await FirebaseFirestore.instance
+        .collection('survey_responses')
+        .doc(phoneNumber)
+        .get();
+
+    if (userDoc.exists) return true;
+
+    if (phoneNumber.length == 10) {
+      final legacyDoc = await FirebaseFirestore.instance
+          .collection('survey_responses')
+          .doc('+91$phoneNumber')
+          .get();
+      return legacyDoc.exists;
+    }
+
+    return false;
+  }
+
+  Future<bool> _authenticateWithGoogle() async {
+    final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+    if (googleUser == null) {
+      return false; // User cancelled the sign-in
+    }
+
+    if (!mounted) return false;
+    setState(() => _isLoading = true);
+
+    final GoogleSignInAuthentication googleAuth =
+        await googleUser.authentication;
+
+    final AuthCredential credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    await FirebaseAuth.instance.signInWithCredential(credential);
+    return true;
   }
 
   Future<void> _saveData(String phoneNumber) async {
@@ -864,7 +898,7 @@ List<String> masterNumbersList = [
   '9995551109', '9895565544', '8807457346', '9656515006', '9946599751',
   '9746658738', '9633860581', '8606517627', '9995780413', '8907829580',
   '9809518088', '9746862135', '9747808887', '9895373262', '9544495993',
-  '9611821338', '7306997433','9567279378',  '8089483012','9747344535',
+  '9611821338', '7306997433', '9567279378', '8089483012', '9747344535',
 
   // --- UAE NUMBERS (+971: 9 Digits) ---
   '527289578', '522520597', '506206577', '561673454', '507786158',
