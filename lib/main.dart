@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:survey/firebase_options.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:web/web.dart' as web;
 
 const String appShareLink =
     'https://play.google.com/store/apps/details?id=com.ishaque.doctordonor';
@@ -271,14 +271,12 @@ class _SurveyPageState extends State<SurveyPage>
     );
   }
 
-  Future<void> _openSupportLink() async {
-    final uri = Uri.parse(appShareLink);
-    final opened = await launchUrl(uri, mode: LaunchMode.platformDefault);
-
-    if (!opened) {
-      await Clipboard.setData(const ClipboardData(text: appShareLink));
-      _showSnackBar('Could not open link, copied instead.', isError: true);
-    }
+  void _openSupportLink() {
+    final anchor = web.HTMLAnchorElement()
+      ..href = appShareLink
+      ..target = '_blank'
+      ..rel = 'noopener';
+    anchor.click();
   }
 
   Future<void> _signInWithGoogle() async {
@@ -1106,9 +1104,9 @@ class _SurveyPageState extends State<SurveyPage>
                             const SizedBox(height: 4),
                             Text(
                               hasName
-                                  ? 'Thanks, $name!'
+                                  ? 'Thank you, $name!'
                                   : 'Waiting for first vote',
-                              maxLines: 1,
+                              maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
                                 fontWeight: FontWeight.w900,
