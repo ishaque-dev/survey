@@ -6,6 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:survey/firebase_options.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+const String appShareLink =
+    'https://play.google.com/store/apps/details?id=com.ishaque.doctordonor';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,16 +34,16 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF0F172A),
+        scaffoldBackgroundColor: const Color(0xFF101820),
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.tealAccent,
           brightness: Brightness.dark,
           primary: Colors.tealAccent,
-          surface: const Color(0xFF1E293B),
+          surface: const Color(0xFF17212B),
         ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
-          fillColor: Colors.white.withValues(alpha: 0.05),
+          fillColor: Colors.white.withValues(alpha: 0.07),
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
             vertical: 16,
@@ -87,7 +91,8 @@ class SurveyPage extends StatefulWidget {
   State<SurveyPage> createState() => _SurveyPageState();
 }
 
-class _SurveyPageState extends State<SurveyPage> {
+class _SurveyPageState extends State<SurveyPage>
+    with SingleTickerProviderStateMixin {
   final List<String> _options = [
     'സൗഹൃദ സംഗമം',
     'സൗഹൃദ കൂട്ടായ്മ',
@@ -209,6 +214,7 @@ class _SurveyPageState extends State<SurveyPage> {
   final Set<String> _selectedOptions = {};
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
+  late final AnimationController _lastVotePulseController;
 
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     clientId:
@@ -221,6 +227,23 @@ class _SurveyPageState extends State<SurveyPage> {
   bool get _useAppleSignInFlow =>
       defaultTargetPlatform == TargetPlatform.iOS ||
       defaultTargetPlatform == TargetPlatform.macOS;
+
+  @override
+  void initState() {
+    super.initState();
+    _lastVotePulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1800),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _lastVotePulseController.dispose();
+    _nameController.dispose();
+    _phoneController.dispose();
+    super.dispose();
+  }
 
   void _onOptionSelected(bool selected, String option) {
     setState(() {
@@ -246,6 +269,16 @@ class _SurveyPageState extends State<SurveyPage> {
         margin: const EdgeInsets.all(20),
       ),
     );
+  }
+
+  Future<void> _openSupportLink() async {
+    final uri = Uri.parse(appShareLink);
+    final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
+
+    if (!opened) {
+      await Clipboard.setData(const ClipboardData(text: appShareLink));
+      _showSnackBar('Could not open link, copied instead.', isError: true);
+    }
   }
 
   Future<void> _signInWithGoogle() async {
@@ -385,6 +418,14 @@ class _SurveyPageState extends State<SurveyPage> {
         'timestamp': FieldValue.serverTimestamp(),
       });
 
+      final lastVoteRef = FirebaseFirestore.instance
+          .collection('app_state')
+          .doc('last_vote');
+      batch.set(lastVoteRef, {
+        'name': name,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+
       for (String option in _selectedOptions) {
         final optionRef = FirebaseFirestore.instance
             .collection('options')
@@ -432,10 +473,26 @@ class _SurveyPageState extends State<SurveyPage> {
     return Scaffold(
       body: Stack(
         children: [
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    const Color(0xFF101820),
+                    const Color(0xFF122427),
+                    const Color(0xFF111827),
+                  ],
+                ),
+              ),
+            ),
+          ),
           SafeArea(
             child: Column(
               children: [
                 _buildHeader(theme),
+                _buildSupportBanner(),
                 Expanded(
                   child: isWide
                       ? _buildWideLayout(theme)
@@ -456,6 +513,126 @@ class _SurveyPageState extends State<SurveyPage> {
     );
   }
 
+  Widget _buildSupportBanner() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
+      child: AnimatedBuilder(
+        animation: _lastVotePulseController,
+        builder: (context, child) {
+          final pulse = _lastVotePulseController.value;
+
+          return Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: _openSupportLink,
+              borderRadius: BorderRadius.circular(14),
+              child: Ink(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.055 + pulse * 0.025),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: Colors.amberAccent.withValues(
+                      alpha: 0.22 + pulse * 0.26,
+                    ),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.amberAccent.withValues(
+                        alpha: 0.08 + pulse * 0.12,
+                      ),
+                      blurRadius: 14 + pulse * 10,
+                      spreadRadius: pulse * 1.2,
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Transform.scale(
+                      scale: 1 + pulse * 0.06,
+                      child: Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.amberAccent.withValues(alpha: 0.22),
+                              Colors.tealAccent.withValues(alpha: 0.16),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          Icons.local_fire_department_outlined,
+                          color: Colors.amberAccent,
+                          size: 21,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ShaderMask(
+                            shaderCallback: (bounds) {
+                              return LinearGradient(
+                                begin: Alignment(-1 + pulse * 2, 0),
+                                end: Alignment(pulse * 2, 0),
+                                colors: const [
+                                  Colors.tealAccent,
+                                  Colors.amberAccent,
+                                  Colors.white,
+                                  Colors.amberAccent,
+                                ],
+                              ).createShader(bounds);
+                            },
+                            child: const Text(
+                              'Support my works by downloading the app',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w900,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          const Text(
+                            'Tap to open on Play Store',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: Colors.white54,
+                              fontSize: 10,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      tooltip: 'Open Play Store',
+                      onPressed: _openSupportLink,
+                      icon: const Icon(
+                        Icons.open_in_new,
+                        color: Colors.tealAccent,
+                        size: 20,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   Widget _buildHeader(ThemeData theme) {
     final size = MediaQuery.of(context).size;
     final isWide = size.width > 900;
@@ -465,32 +642,38 @@ class _SurveyPageState extends State<SurveyPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Row(
-            children: [
-              Icon(Icons.school_outlined, color: Colors.tealAccent, size: 32),
-              SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'GHSSK 2007',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.tealAccent,
-                    ),
+          const Flexible(
+            child: Row(
+              children: [
+                Icon(Icons.school_outlined, color: Colors.tealAccent, size: 32),
+                SizedBox(width: 12),
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'GHSSK 2007',
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.tealAccent,
+                        ),
+                      ),
+                      Text(
+                        'NAMING SURVEY',
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12,
+                          letterSpacing: 2,
+                          color: Colors.white54,
+                        ),
+                      ),
+                    ],
                   ),
-                  Text(
-                    'NAMING SURVEY',
-                    style: TextStyle(
-                      fontSize: 12,
-                      letterSpacing: 2,
-                      color: Colors.white54,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
           if (!isWide)
             TextButton(
@@ -535,30 +718,90 @@ class _SurveyPageState extends State<SurveyPage> {
   }
 
   Widget _buildSurveyContent(ThemeData theme) {
+    final width = MediaQuery.of(context).size.width;
+    final gridColumns = width >= 1100
+        ? 4
+        : width >= 720
+        ? 3
+        : width >= 390
+        ? 4
+        : 3;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.03),
+            color: Colors.white.withValues(alpha: 0.06),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+            border: Border.all(color: Colors.tealAccent.withValues(alpha: 0.2)),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Flexible(
+                    child: Text(
+                      'Pick your 4 favorites',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.tealAccent.withValues(alpha: 0.14),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text(
+                      '${_selectedOptions.length} / 4',
+                      style: const TextStyle(
+                        color: Colors.tealAccent,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
               const Text(
-                'Pick your 4 favorites',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                'Choose exactly four names, then verify with Google.',
+                style: TextStyle(color: Colors.white54, fontSize: 13),
               ),
-              Text(
-                '${_selectedOptions.length} / 4',
-                style: const TextStyle(
-                  color: Colors.tealAccent,
-                  fontWeight: FontWeight.bold,
+              if (_selectedOptions.isNotEmpty) ...[
+                const SizedBox(height: 14),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: _selectedOptions
+                      .map(
+                        (option) => Chip(
+                          label: Text(
+                            option,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontSize: 11),
+                          ),
+                          backgroundColor: Colors.tealAccent.withValues(
+                            alpha: 0.12,
+                          ),
+                          side: BorderSide(
+                            color: Colors.tealAccent.withValues(alpha: 0.26),
+                          ),
+                          deleteIconColor: Colors.tealAccent,
+                          onDeleted: () => _onOptionSelected(false, option),
+                        ),
+                      )
+                      .toList(),
                 ),
-              ),
+              ],
             ],
           ),
         ),
@@ -566,9 +809,9 @@ class _SurveyPageState extends State<SurveyPage> {
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 4,
-            childAspectRatio: 3,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: gridColumns,
+            childAspectRatio: width < 720 ? 2.45 : 3,
             mainAxisSpacing: 8,
             crossAxisSpacing: 8,
           ),
@@ -583,21 +826,39 @@ class _SurveyPageState extends State<SurveyPage> {
                 decoration: BoxDecoration(
                   color: isSelected
                       ? Colors.tealAccent
-                      : Colors.white.withValues(alpha: 0.05),
+                      : Colors.white.withValues(alpha: 0.055),
                   borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: isSelected
+                        ? Colors.tealAccent
+                        : Colors.white.withValues(alpha: 0.08),
+                  ),
                 ),
                 alignment: Alignment.center,
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: Text(
-                  option,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 9,
-                    color: isSelected ? Colors.black : Colors.white70,
-                    fontWeight: isSelected
-                        ? FontWeight.bold
-                        : FontWeight.normal,
-                  ),
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (isSelected) ...[
+                      const Icon(Icons.check_circle, size: 14),
+                      const SizedBox(width: 4),
+                    ],
+                    Flexible(
+                      child: Text(
+                        option,
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: width < 720 ? 9 : 10,
+                          color: isSelected ? Colors.black : Colors.white70,
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             );
@@ -630,7 +891,7 @@ class _SurveyPageState extends State<SurveyPage> {
           icon: const Icon(Icons.login_outlined),
           label: const Text('Proceed to vote', textAlign: TextAlign.center),
         ),
-        const SizedBox(height: 40),
+        const SizedBox(height: 28),
         const Center(
           child: Column(
             children: [
@@ -648,6 +909,247 @@ class _SurveyPageState extends State<SurveyPage> {
         ),
       ],
     );
+  }
+
+  Widget _buildTotalVotersMeter(int totalVoters) {
+    final progress = (totalVoters / 189).clamp(0.0, 1.0).toDouble();
+
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        SizedBox(
+          height: 70,
+          width: 70,
+          child: CircularProgressIndicator(
+            value: progress,
+            strokeWidth: 8,
+            backgroundColor: Colors.white.withValues(alpha: 0.1),
+            color: Colors.tealAccent,
+            strokeCap: StrokeCap.round,
+          ),
+        ),
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              '$totalVoters',
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.tealAccent,
+                height: 1.1,
+              ),
+            ),
+            Container(
+              width: 30,
+              height: 1.5,
+              color: Colors.blue,
+              margin: const EdgeInsets.symmetric(vertical: 2),
+            ),
+            const Text(
+              '189',
+              style: TextStyle(
+                fontSize: 11,
+                color: Colors.red,
+                fontWeight: FontWeight.bold,
+                height: 1.1,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLastVoterCard() {
+    return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+      stream: FirebaseFirestore.instance
+          .collection('app_state')
+          .doc('last_vote')
+          .snapshots(),
+      builder: (context, snapshot) {
+        final data = snapshot.data?.data();
+        final name = (data?['name'] as String?)?.trim();
+        final hasName = name != null && name.isNotEmpty;
+        final timestamp = data?['timestamp'];
+        final votedAt = timestamp is Timestamp ? timestamp.toDate() : null;
+        final initial = hasName ? name.characters.first.toUpperCase() : '?';
+        final timeText = votedAt != null
+            ? _formatLastVoteTimestamp(votedAt)
+            : 'Waiting for timestamp';
+        final messageKey = '${name ?? 'empty'}-$timeText';
+
+        return AnimatedBuilder(
+          animation: _lastVotePulseController,
+          builder: (context, child) {
+            final pulse = _lastVotePulseController.value;
+
+            return AnimatedScale(
+              key: ValueKey(name ?? 'empty-last-vote'),
+              scale: 1,
+              duration: const Duration(milliseconds: 260),
+              curve: Curves.easeOutBack,
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.tealAccent.withValues(alpha: 0.13 + pulse * 0.05),
+                      const Color(0xFF1F3B32).withValues(alpha: 0.48),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: Colors.tealAccent.withValues(
+                      alpha: 0.22 + pulse * 0.2,
+                    ),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.tealAccent.withValues(
+                        alpha: 0.06 + pulse * 0.1,
+                      ),
+                      blurRadius: 18 + pulse * 10,
+                      spreadRadius: pulse * 1.5,
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Container(
+                          width: 46,
+                          height: 46,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: Colors.tealAccent.withValues(alpha: 0.18),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: Colors.tealAccent.withValues(alpha: 0.35),
+                            ),
+                          ),
+                          child: Text(
+                            initial,
+                            style: const TextStyle(
+                              color: Colors.tealAccent,
+                              fontWeight: FontWeight.w900,
+                              fontSize: 20,
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          right: -5,
+                          top: -5,
+                          child: Transform.rotate(
+                            angle: pulse * 0.35,
+                            child: Icon(
+                              Icons.auto_awesome,
+                              color: Colors.amberAccent.withValues(
+                                alpha: 0.75 + pulse * 0.25,
+                              ),
+                              size: 18,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 420),
+                        switchInCurve: Curves.easeOutBack,
+                        switchOutCurve: Curves.easeIn,
+                        transitionBuilder: (child, animation) {
+                          return FadeTransition(
+                            opacity: animation,
+                            child: SlideTransition(
+                              position: Tween<Offset>(
+                                begin: const Offset(0.08, 0),
+                                end: Offset.zero,
+                              ).animate(animation),
+                              child: child,
+                            ),
+                          );
+                        },
+                        child: Column(
+                          key: ValueKey(messageKey),
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  width: 7,
+                                  height: 7,
+                                  decoration: BoxDecoration(
+                                    color: Colors.lightGreenAccent.withValues(
+                                      alpha: 0.55 + pulse * 0.45,
+                                    ),
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(width: 7),
+                                Text(
+                                  'Latest vote',
+                                  style: TextStyle(
+                                    color: Colors.white.withValues(alpha: 0.62),
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              hasName
+                                  ? 'Thanks, $name!'
+                                  : 'Waiting for first vote',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w900,
+                                fontSize: 17,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(height: 3),
+                            Text(
+                              'Updated $timeText',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: Colors.white54,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  String _formatLastVoteTimestamp(DateTime votedAt) {
+    final istTime = votedAt.toUtc().add(const Duration(hours: 5, minutes: 30));
+    final day = istTime.day.toString().padLeft(2, '0');
+    final month = istTime.month.toString().padLeft(2, '0');
+    final year = istTime.year.toString();
+    final hour = istTime.hour % 12 == 0 ? 12 : istTime.hour % 12;
+    final minute = istTime.minute.toString().padLeft(2, '0');
+    final period = istTime.hour >= 12 ? 'PM' : 'AM';
+
+    return '$day/$month/$year $hour:$minute $period IST';
   }
 
   Widget _buildResultsView(ThemeData theme, {bool showTotal = false}) {
@@ -686,66 +1188,25 @@ class _SurveyPageState extends State<SurveyPage> {
               children: [
                 Padding(
                   padding: const EdgeInsets.all(24.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  child: Column(
                     children: [
-                      const Text(
-                        'Live Status',
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      if (showTotal)
-                        Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            SizedBox(
-                              height: 70,
-                              width: 70,
-                              child: CircularProgressIndicator(
-                                value: totalVoters / 189,
-                                strokeWidth: 8,
-                                backgroundColor: Colors.white.withValues(
-                                  alpha: 0.1,
-                                ),
-                                color: Colors.tealAccent,
-                                strokeCap: StrokeCap.round,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Flexible(
+                            child: Text(
+                              'Live Status',
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  '${totalVoters.toInt()}',
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.tealAccent,
-                                    height: 1.1,
-                                  ),
-                                ),
-                                Container(
-                                  width: 30,
-                                  height: 1.5,
-                                  color: Colors.blue,
-                                  margin: const EdgeInsets.symmetric(
-                                    vertical: 2,
-                                  ),
-                                ),
-                                const Text(
-                                  '189',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    color: Colors.red,
-                                    fontWeight: FontWeight.bold,
-                                    height: 1.1,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                          ),
+                          if (showTotal) _buildTotalVotersMeter(totalVoters),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      _buildLastVoterCard(),
                     ],
                   ),
                 ),
@@ -769,10 +1230,10 @@ class _SurveyPageState extends State<SurveyPage> {
                         margin: const EdgeInsets.only(bottom: 16),
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.03),
+                          color: Colors.white.withValues(alpha: 0.045),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.05),
+                            color: Colors.white.withValues(alpha: 0.06),
                           ),
                         ),
                         child: Column(
